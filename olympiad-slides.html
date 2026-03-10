@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
+  --ui-scale: 1.5;
   --bg: #0d1117;
   --bg2: #13181f;
   --bg3: #1a2130;
@@ -35,6 +36,14 @@ html, body {
   background: var(--bg);
   font-family: 'DM Sans', sans-serif;
   color: var(--text);
+}
+
+#zoom-root {
+  width: calc(100vw / var(--ui-scale));
+  height: calc(100vh / var(--ui-scale));
+  transform: scale(var(--ui-scale));
+  transform-origin: top left;
+  overflow: hidden;
 }
 
 /* ── PROGRESS BAR ── */
@@ -86,7 +95,7 @@ html, body {
 
 /* ── SLIDES CONTAINER ── */
 #slides-wrap {
-  width: 100vw; height: 100vh;
+  width: 100%; height: 100%;
   position: relative;
   overflow: hidden;
 }
@@ -340,6 +349,8 @@ pre.verbatim .comm { color: var(--text-muted); }
 </style>
 </head>
 <body>
+
+<div id="zoom-root">
 
 <div id="progress-bar" style="width:0%"></div>
 <div id="section-label">Introduction</div>
@@ -1442,6 +1453,8 @@ Therefore ...
 </div>
 
 </div><!-- /slides-wrap -->
+
+</div><!-- /zoom-root -->
 
 <script>
 const slides = Array.from(document.querySelectorAll('.slide'));
