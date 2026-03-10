@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Write Olympiad Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #13181f;
+  --bg3: #1a2130;
+  --surface: #1e2738;
+  --gold: #c9a227;
+  --gold-light: #e8c76a;
+  --gold-dim: rgba(201,162,39,0.18);
+  --text: #e8e4d8;
+  --text-dim: #9a9589;
+  --text-muted: #5a5650;
+  --red: #e05252;
+  --red-dim: rgba(224,82,82,0.15);
+  --blue: #6ba8e8;
+  --blue-dim: rgba(107,168,232,0.13);
+  --green: #5ecb8e;
+  --border: rgba(201,162,39,0.18);
+  --radius: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+}
+
+/* ── PROGRESS BAR ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transition: width 0.4s ease;
+  z-index: 100;
+  box-shadow: 0 0 12px rgba(201,162,39,0.6);
+}
+
+/* ── SLIDE COUNTER ── */
+#counter {
+  position: fixed; bottom: 22px; right: 28px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  z-index: 100;
+  user-select: none;
+}
+#counter span { color: var(--gold); }
+
+/* ── NAV ARROWS ── */
+.nav-btn {
+  position: fixed; bottom: 16px;
+  background: none; border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: all 0.2s;
+  z-index: 100;
+}
+.nav-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+#btn-prev { left: calc(50% - 48px); }
+#btn-next { left: calc(50% + 12px); }
+
+/* ── SECTION PILL ── */
+#section-label {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); background: var(--gold-dim);
+  border: 1px solid var(--border);
+  padding: 4px 14px; border-radius: 20px;
+  z-index: 100; transition: opacity 0.3s;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+
+/* ── SLIDES CONTAINER ── */
+#slides-wrap {
+  width: 100vw; height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── INDIVIDUAL SLIDE ── */
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 80px 80px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateY(24px);
+}
+.slide.active {
+  opacity: 1; pointer-events: all; transform: translateY(0);
+}
+.slide.exit {
+  opacity: 0; transform: translateY(-20px);
+}
+
+/* ── TITLE SLIDE ── */
+.slide-title {
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, #1a2540 0%, var(--bg) 100%);
+}
+.slide-title::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.title-ornament {
+  font-size: 13px; letter-spacing: 0.35em; text-transform: uppercase;
+  color: var(--gold); font-family: 'DM Mono', monospace;
+  margin-bottom: 28px; opacity: 0.8;
+}
+.title-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5vw, 62px);
+  font-weight: 600; line-height: 1.1;
+  text-align: center;
+  background: linear-gradient(135deg, #f0e8cc 0%, var(--gold-light) 50%, #d4a853 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 18px;
+}
+.title-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(13px, 1.4vw, 17px);
+  color: var(--text-dim); font-weight: 300;
+  text-align: center; max-width: 560px;
+  line-height: 1.6;
+}
+.title-divider {
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 24px auto;
+}
+
+/* ── INNER SLIDE STRUCTURE ── */
+.slide-inner {
+  width: 100%; max-width: 900px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.slide-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(22px, 2.6vw, 34px);
+  font-weight: 600; color: var(--gold-light);
+  line-height: 1.2;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+/* ── BLOCKS ── */
+.block, .alert-block, .info-block {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  line-height: 1.65;
+  font-size: clamp(12px, 1.2vw, 15px);
+}
+.block {
+  background: var(--bg3);
+  border-left: 3px solid var(--blue);
+}
+.block .block-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 8px;
+}
+.alert-block {
+  background: var(--red-dim);
+  border-left: 3px solid var(--red);
+}
+.alert-block .block-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--red); margin-bottom: 8px;
+}
+.info-block {
+  background: var(--gold-dim);
+  border-left: 3px solid var(--gold);
+}
+.info-block .block-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+
+/* ── LISTS ── */
+ul.bullet, ol.numbered {
+  padding-left: 22px;
+  font-size: clamp(12px, 1.25vw, 15px);
+  line-height: 1.75;
+  color: var(--text);
+}
+ul.bullet li::marker { color: var(--gold); }
+ol.numbered li::marker { color: var(--gold); font-family: 'DM Mono', monospace; font-size: 11px; }
+li { margin-bottom: 3px; }
+li b, strong { color: var(--gold-light); font-weight: 500; }
+
+/* ── FLOW DIAGRAM ── */
+.flow {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--bg3); border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.flow-step {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 7px 14px;
+  font-size: 12px; color: var(--gold-light);
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+.flow-arrow { color: var(--gold); font-size: 14px; opacity: 0.7; }
+
+/* ── CODE / VERBATIM ── */
+pre.verbatim {
+  background: #0a0d12;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: clamp(10px, 1vw, 13px);
+  line-height: 1.7;
+  color: #b0bec5;
+  overflow-x: auto;
+}
+pre.verbatim .kw { color: var(--gold); }
+pre.verbatim .comm { color: var(--text-muted); }
+
+/* ── MATH ── */
+.math-display {
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(14px, 1.6vw, 20px);
+  font-style: italic;
+  color: var(--text);
+  padding: 10px 0;
+  letter-spacing: 0.04em;
+}
+.math-inline { font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+/* ── TWO COLUMNS ── */
+.cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+
+/* ── SECTION HEADER SLIDE ── */
+.slide-section-header {
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, #16203a 0%, var(--bg) 100%);
+  text-align: center;
+}
+.section-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--gold); opacity: 0.7; margin-bottom: 20px;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--text) 0%, var(--gold-light) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.15;
+}
+
+/* ── PAUSE / REVEAL ── */
+.pause-reveal {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  opacity: 0; transform: translateY(10px);
+  pointer-events: none;
+}
+.pause-reveal.revealed {
+  opacity: 1; transform: translateY(0); pointer-events: all;
+}
+
+/* ── CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: clamp(12px, 1.2vw, 15px); line-height: 1.5;
+}
+.check-box {
+  flex-shrink: 0;
+  width: 18px; height: 18px; margin-top: 1px;
+  border: 1.5px solid var(--gold);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+}
+.check-box::after { content: '✓'; font-size: 11px; color: var(--gold); line-height: 1; }
+
+/* ── BIG FLOW FINAL ── */
+.big-flow {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; flex-wrap: wrap;
+  padding: 28px;
+}
+.big-step {
+  background: var(--surface);
+  border: 1.5px solid var(--gold);
+  border-radius: 8px; padding: 12px 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(14px, 1.5vw, 20px);
+  font-weight: 500; color: var(--gold-light);
+  text-align: center;
+  box-shadow: 0 0 20px rgba(201,162,39,0.08);
+}
+.big-arrow { font-size: 24px; color: var(--gold); opacity: 0.5; }
+
+/* ── QUOTE STYLE ── */
+.quote-block {
+  border-left: 2px solid var(--gold);
+  padding: 12px 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(14px, 1.5vw, 19px);
+  font-style: italic;
+  color: var(--text);
+  background: var(--gold-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ── BACKGROUND DECORATION ── */
+.deco-circle {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(201,162,39,0.05);
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar" style="width:0%"></div>
+<div id="section-label">Introduction</div>
+<div id="counter"><span id="cur">1</span> / <span id="tot">1</span></div>
+<button class="nav-btn" id="btn-prev">←</button>
+<button class="nav-btn" id="btn-next">→</button>
+
+<div id="slides-wrap">
+
+<!-- ══════════════════════════════════════════════════
+     SLIDE 0 — TITLE
+══════════════════════════════════════════════════ -->
+<div class="slide slide-title active" data-section="Overview">
+  <div class="deco-circle" style="width:500px;height:500px;top:-100px;right:-150px;"></div>
+  <div class="deco-circle" style="width:300px;height:300px;bottom:-50px;left:-80px;"></div>
+  <div class="title-ornament">Mathematical Olympiad Writing</div>
+  <div class="title-main">How to Write<br>Olympiad Solutions</div>
+  <div class="title-divider"></div>
+  <div class="title-sub">A detailed guide for Algebra, Combinatorics, Geometry, and Number Theory</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 1 — WHY WRITING MATTERS
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Why Writing Matters">
+  <div class="section-number">Section 01</div>
+  <div class="section-title">Why Writing<br>Matters</div>
+</div>
+
+<div class="slide" data-section="Why Writing Matters">
+  <div class="slide-inner">
+    <div class="slide-h">Why exposition matters in olympiads</div>
+    <div class="info-block">
+      <div class="block-title">Core Principle</div>
+      An olympiad solution is not a transcript of your thoughts. It is a finished mathematical argument whose job is to convince a grader.
+    </div>
+    <ul class="bullet">
+      <li>Correct mathematics is the foundation.</li>
+      <li>Structure tells the grader where the real idea is.</li>
+      <li>Presentation affects how much of your real progress the grader can actually see.</li>
+      <li>Long solutions do not automatically earn more credit.</li>
+    </ul>
+    <div class="alert-block pause-reveal" data-pause="true">
+      <div class="block-title">A Useful Mindset</div>
+      Write for a reader who is <strong>intelligent, busy, and seeing your idea for the first time</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Why Writing Matters">
+  <div class="slide-inner">
+    <div class="slide-h">What a grader wants to know quickly</div>
+    <div class="block">
+      <div class="block-title">A grader should identify these almost immediately</div>
+      <ol class="numbered">
+        <li>What is the <strong>final answer</strong>?</li>
+        <li>What is the <strong>main idea</strong>?</li>
+        <li>What is the <strong>hard step</strong>?</li>
+        <li>Why does the solution <strong>finish</strong> after that step?</li>
+      </ol>
+    </div>
+    <div class="info-block">
+      <div class="block-title">If these are hidden, the proof feels weaker than it really is</div>
+      Even a correct solution can look incomplete if the key claim is buried inside a paragraph, if the equality case is never stated, or if the argument ends without explicitly returning to the problem statement.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Why Writing Matters">
+  <div class="slide-inner">
+    <div class="slide-h">What weak write-ups usually look like</div>
+    <ul class="bullet">
+      <li>They begin calculations before stating the goal.</li>
+      <li>They use notation before defining it.</li>
+      <li>They bury the key idea in the middle of a large paragraph.</li>
+      <li>They mix hard steps with routine steps so the reader cannot tell which is which.</li>
+      <li>They stop after proving something close to the problem, but not the exact target.</li>
+    </ul>
+    <div class="alert-block">
+      <div class="block-title">Important</div>
+      A poor write-up often reveals not just poor style, but <strong>incomplete understanding of the proof itself</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 2 — UNIVERSAL ARCHITECTURE
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Universal Architecture">
+  <div class="section-number">Section 02</div>
+  <div class="section-title">Universal Architecture<br>of a Strong Solution</div>
+</div>
+
+<div class="slide" data-section="Universal Architecture">
+  <div class="slide-inner">
+    <div class="slide-h">Master solution template</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <pre class="verbatim"><span class="kw">Solution.</span>
+<span class="kw">Answer:</span> ...
+
+<span class="kw">Let</span> ...
+
+<span class="kw">Claim:</span> ...
+
+<span class="kw">Proof.</span>
+  Step 1: Key observation
+  Step 2: Main argument
+  Step 3: Deduction
+
+Hence ...
+Therefore ...
+
+□</pre>
+      <ul class="bullet" style="font-size:13px;">
+        <li><strong>Answer:</strong> gives the destination immediately.</li>
+        <li><strong>Let …</strong> introduces notation before it is used.</li>
+        <li><strong>Claim:</strong> isolates the bridge from assumptions to conclusion.</li>
+        <li><strong>Steps:</strong> force a logical order on the argument.</li>
+        <li><strong>Hence / Therefore:</strong> explicitly close the proof.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Universal Architecture">
+  <div class="slide-inner">
+    <div class="slide-h">The universal flow</div>
+    <ol class="numbered" style="margin-bottom:12px;">
+      <li>State the answer or exact target.</li>
+      <li>Define the objects and notation.</li>
+      <li>Tell the reader the main idea.</li>
+      <li>Prove the crucial claim or lemma.</li>
+      <li>Carry out the easier deductions cleanly.</li>
+      <li>Return to the original problem statement and conclude.</li>
+    </ol>
+    <div class="block">
+      <div class="block-title">Why this structure works</div>
+      Most olympiad proofs consist of <strong>one decisive insight</strong> plus a number of routine verifications. Good writing separates those two layers.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Universal Architecture">
+  <div class="slide-inner">
+    <div class="slide-h">Crossing the ocean</div>
+    <div class="block">
+      <div class="block-title">The Central Idea</div>
+      A strong olympiad solution contains one step where the proof truly moves from "promising calculations" to "actual solution".
+    </div>
+    <ul class="bullet">
+      <li>In <strong>geometry</strong>, this may be the similarity or cyclic quadrilateral.</li>
+      <li>In <strong>algebra</strong>, this may be the key identity or substitution.</li>
+      <li>In <strong>combinatorics</strong>, this may be the invariant or extremal choice.</li>
+      <li>In <strong>number theory</strong>, this may be the decisive modulus, valuation, or descent.</li>
+    </ul>
+    <div class="alert-block pause-reveal" data-pause="true">
+      <div class="block-title">Writing Advice</div>
+      When you cross the ocean, <strong>put that step on its own line. Name it. Display it. Prove it as a self-contained claim.</strong>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Universal Architecture">
+  <div class="slide-inner">
+    <div class="slide-h">Useful sentence patterns</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="block">
+        <div class="block-title">High-Value Phrases</div>
+        <ul class="bullet">
+          <li>"We claim that …"</li>
+          <li>"The key observation is …"</li>
+          <li>"It suffices to prove …"</li>
+          <li>"We first show attainability."</li>
+          <li>"It remains to eliminate all other cases."</li>
+          <li>"Now we prove this is a lower bound."</li>
+          <li>"Therefore the only possible value is …"</li>
+        </ul>
+      </div>
+      <div class="info-block">
+        <div class="block-title">Why These Help</div>
+        These phrases are not filler. They <strong>signal the logical role</strong> of each paragraph.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3 — SPECIAL STRUCTURES
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Special Structures">
+  <div class="section-number">Section 03</div>
+  <div class="section-title">Special Structures:<br>Find All &amp; Extremal</div>
+</div>
+
+<div class="slide" data-section="Special Structures">
+  <div class="slide-inner">
+    <div class="slide-h">How to write a "find all" solution</div>
+    <div class="block">
+      <div class="block-title">Recommended Order</div>
+      <ol class="numbered">
+        <li>We claim the only solutions are <span class="math-inline">…</span></li>
+        <li>We <strong>verify</strong> these candidates satisfy the conditions.</li>
+        <li>We <strong>prove there are no other solutions</strong>.</li>
+      </ol>
+    </div>
+    <div class="alert-block">
+      <div class="block-title">Very Common Mistake</div>
+      Many students only derive candidates and stop. That is <strong>not</strong> the same as proving those candidates are the only possibilities.
+    </div>
+    <div class="info-block">
+      <div class="block-title">Best Final Sentence</div>
+      Therefore the complete set of solutions is <span class="math-inline">{…}</span>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Special Structures">
+  <div class="slide-inner">
+    <div class="slide-h">How to write a minimum/maximum solution</div>
+    <div class="block">
+      <div class="block-title">Recommended Order</div>
+      <ol class="numbered">
+        <li>We claim the minimum/maximum is <span class="math-inline">…</span></li>
+        <li>We prove this value is <strong>attained</strong>.</li>
+        <li>We prove this value is a <strong>lower/upper bound</strong>.</li>
+      </ol>
+    </div>
+    <div class="info-block">
+      <div class="block-title">Why This Matters</div>
+      A bound alone is not an extremum. An example alone is not an extremum. <strong>You need both parts.</strong>
+    </div>
+    <div class="alert-block">
+      <div class="block-title">Strong Ending</div>
+      Hence the minimum is <span class="math-inline">…</span>, attained when <span class="math-inline">…</span>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Special Structures">
+  <div class="slide-inner">
+    <div class="slide-h">Attainment, equality cases, and verification</div>
+    <ul class="bullet" style="margin-bottom:12px;">
+      <li>If the answer is a number, say <strong>when equality holds</strong>.</li>
+      <li>If the answer is a family of objects, <strong>verify that family explicitly</strong>.</li>
+      <li>If the verification is easy, still include it.</li>
+      <li>The problem asked for a complete solution, not only the hard half.</li>
+    </ul>
+    <div class="block">
+      <div class="block-title">Example Style</div>
+      We claim the minimum value is <span class="math-inline">16</span>. This is attained at<br>
+      <div class="math-display">x₁ = x₂ = x₃ = x₄ = 1.</div>
+      We now show no smaller value is possible.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 4 — DEFINITIONS & NOTATION
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Definitions & Notation">
+  <div class="section-number">Section 04</div>
+  <div class="section-title">Definitions, Notation,<br>and Visual Structure</div>
+</div>
+
+<div class="slide" data-section="Definitions & Notation">
+  <div class="slide-inner">
+    <div class="slide-h">Definitions are part of the proof</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>Definitions must be <strong>complete and precise</strong>.</li>
+      <li>If an object matters repeatedly, give it a name.</li>
+      <li>If the definition is complicated, include a quick example.</li>
+      <li>In geometry or combinatorics, the diagram and the definitions should match perfectly.</li>
+    </ul>
+    <div class="alert-block">
+      <div class="block-title">Danger</div>
+      A typo in a definition can destroy the whole argument, because the reader has no reliable way to repair your intended meaning.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Definitions & Notation">
+  <div class="slide-inner">
+    <div class="slide-h">How to introduce notation properly</div>
+    <div class="cols">
+      <div>
+        <div class="alert-block" style="margin-bottom:10px;">
+          <div class="block-title">Weak Style</div>
+          "Consider the bad set and the special vertex and the important line."
+        </div>
+      </div>
+      <div>
+        <div class="info-block">
+          <div class="block-title">Strong Style</div>
+          Let <em>B</em> be the set of bad indices, let <em>v</em> be a vertex of maximum degree, and let <em>ℓ</em> be the line through <em>P</em> parallel to <em>BC</em>.
+        </div>
+      </div>
+    </div>
+    <ul class="bullet">
+      <li>Named objects reduce repetition.</li>
+      <li>Good notation forces you to think clearly about what is actually defined.</li>
+      <li>Reusing notation consistently makes long proofs much easier to read.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="Definitions & Notation">
+  <div class="slide-inner">
+    <div class="slide-h">Leave space</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>Skip lines between substantial paragraphs.</li>
+      <li>Put claims and lemmas on their own lines.</li>
+      <li>Display important equations.</li>
+      <li>Split casework into separate blocks.</li>
+      <li>If a calculation is long, use aligned displays instead of prose.</li>
+    </ul>
+    <div class="block">
+      <div class="block-title">Reason</div>
+      Dense formatting makes even correct mathematics feel suspicious. <strong>Whitespace is not cosmetic; it reveals structure.</strong>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Definitions & Notation">
+  <div class="slide-inner">
+    <div class="slide-h">Diagrams are not optional</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>If your solution used a diagram, the reader should get one too.</li>
+      <li>This is not only for geometry.</li>
+      <li>In combinatorics and game problems, pictures can be decisive.</li>
+      <li>A missing diagram forces the grader to reconstruct your exact configuration.</li>
+    </ul>
+    <div class="alert-block">
+      <div class="block-title">Practical Rule</div>
+      If the proof depends on where points, cells, edges, or regions are located, <strong>include the diagram</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 5 — HOW MUCH DETAIL
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="How Much Detail">
+  <div class="section-number">Section 05</div>
+  <div class="section-title">How Much Detail<br>to Include</div>
+</div>
+
+<div class="slide" data-section="How Much Detail">
+  <div class="slide-inner">
+    <div class="slide-h">How much detail is enough?</div>
+    <div class="block" style="margin-bottom:16px;">
+      <div class="block-title">Reliable Criterion</div>
+      Include enough detail that a strong student who did <em>not</em> solve the problem could not plausibly have written the same solution.
+    </div>
+    <ul class="bullet">
+      <li>Routine algebra may be compressed.</li>
+      <li>The decisive step may <strong>not</strong> be compressed.</li>
+      <li>If a sentence contains the actual difficulty of the problem, it needs proof.</li>
+      <li>If you cite a theorem, explain how it applies here.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="How Much Detail">
+  <div class="slide-inner">
+    <div class="slide-h">Too little detail vs. too much detail</div>
+    <div class="cols">
+      <div class="alert-block">
+        <div class="block-title">Too Little</div>
+        <ul class="bullet" style="margin-bottom:8px;">
+          <li>"Clearly"</li>
+          <li>"By symmetry"</li>
+          <li>"Worst case"</li>
+          <li>"Easy to see"</li>
+          <li>"The result follows"</li>
+        </ul>
+        These are dangerous if the omitted step is not truly routine.
+      </div>
+      <div class="block">
+        <div class="block-title">Too Much</div>
+        <ul class="bullet" style="margin-bottom:8px;">
+          <li>Repeating the same definition many times</li>
+          <li>Expanding trivial computations line by line</li>
+          <li>Writing every thought in discovery order</li>
+          <li>Explaining standard algebra that is not the heart of the proof</li>
+        </ul>
+        The real problem is often <strong>disorganization</strong>, not excess detail.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="How Much Detail">
+  <div class="slide-inner">
+    <div class="slide-h">Write forwards, not backwards</div>
+    <div class="block" style="margin-bottom:14px;">
+      <div class="block-title">Preferred Logical Flow</div>
+      <div class="math-display">X ⟹ Y ⟹ Z</div>
+    </div>
+    <div class="alert-block" style="margin-bottom:14px;">
+      <div class="block-title">Avoid This Shape</div>
+      "We want <em>Z</em>. If <em>Y</em> were true then <em>Z</em> would follow. But <em>X</em> is equivalent to <em>Y</em>, and <em>X</em> is given, so <em>Z</em>."
+    </div>
+    <ul class="bullet">
+      <li>Forward writing is easier to read.</li>
+      <li>Forward writing makes hidden assumptions easier to detect.</li>
+      <li>Forward writing usually shortens the final solution.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="How Much Detail">
+  <div class="slide-inner">
+    <div class="slide-h">Citing known results</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>It is usually fine to cite a named theorem that does not trivialize the problem.</li>
+      <li>If the quoted result is not completely standard, outline why it applies.</li>
+      <li>Do not choose between "prove everything from scratch" and "say nothing".</li>
+    </ul>
+    <div class="block">
+      <div class="block-title">Good Style — Cauchy–Schwarz Example</div>
+      By Cauchy–Schwarz,<br>
+      <div class="math-display">(a₁² + ⋯ + aₙ²)(1 + ⋯ + 1) ≥ (a₁ + ⋯ + aₙ)².</div>
+      Applying this to the sequence …, we obtain …
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 6 — ALGEBRA
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Algebra">
+  <div class="section-number">Section 06</div>
+  <div class="section-title">Writing<br>Algebra Solutions</div>
+</div>
+
+<div class="slide" data-section="Algebra">
+  <div class="slide-inner">
+    <div class="slide-h">What algebra solutions need most</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>A clear <strong>target expression</strong> or target family of solutions</li>
+      <li>A named <strong>substitution or normalization</strong></li>
+      <li>A highlighted <strong>key identity</strong></li>
+      <li>A clean separation between the non-routine insight and the routine manipulations</li>
+      <li>Explicit equality cases or verification</li>
+    </ul>
+    <div class="flow">
+      <div class="flow-step">Normalize</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Structural identity</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Apply inequality / factorization</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Analyze equality</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Algebra">
+  <div class="slide-inner">
+    <div class="slide-h">Algebra opening template</div>
+    <div class="block">
+      <div class="block-title">A Good Start</div>
+      We claim the minimum value is <em>M</em>, attained at …<br><br>
+      Let<br>
+      <div class="math-display">x = a/b,&nbsp;&nbsp;y = b/c,&nbsp;&nbsp;z = c/a.</div>
+      The key observation is the identity<br>
+      <div class="math-display">F(a,b,c) = G(x,y,z).</div>
+      Once this is proved, the inequality follows from AM-GM.
+    </div>
+    <ul class="bullet">
+      <li>The answer is stated.</li>
+      <li>The normalization is introduced.</li>
+      <li>The heart of the proof is telegraphed.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="Algebra">
+  <div class="slide-inner">
+    <div class="slide-h">Inequality solutions in algebra</div>
+    <ol class="numbered" style="margin-bottom:14px;">
+      <li>State the claimed bound and equality case.</li>
+      <li>Decide whether the problem wants homogenization, substitution, smoothing, or direct inequality tools.</li>
+      <li>Extract the one formula that makes the rest work.</li>
+      <li>Only then do the routine estimates.</li>
+      <li>End by checking equality carefully.</li>
+    </ol>
+    <div class="alert-block">
+      <div class="block-title">Common Mistake</div>
+      Students often write three pages of manipulation and never indicate which transformation was the intended turning point.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Algebra">
+  <div class="slide-inner">
+    <div class="slide-h">Equations and functional equations</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>In equations, isolate the <strong>factorization or symmetry</strong> that kills cases.</li>
+      <li>In functional equations, list the strategic substitutions intentionally.</li>
+      <li>If a value such as <em>f</em>(0) or <em>f</em>(1) is central, name it early.</li>
+      <li>Number especially important displayed equations if you will reuse them.</li>
+    </ul>
+    <div class="block">
+      <div class="block-title">Functional-Equation Style</div>
+      Set <em>x</em> = 0 to obtain (1).<br>
+      Set <em>y</em> = 0 to obtain (2).<br>
+      Subtracting (1) and (2), we deduce …
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Algebra">
+  <div class="slide-inner">
+    <div class="slide-h">Algebra checklist</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-box"></div><span>Did you state the answer early?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you identify the main substitution or identity?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you avoid expanding blindly when a factored form is stronger?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you verify the equality case or all candidate functions?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Does the solution explain why the chosen method was natural?</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 7 — COMBINATORICS
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Combinatorics">
+  <div class="section-number">Section 07</div>
+  <div class="section-title">Writing<br>Combinatorics Solutions</div>
+</div>
+
+<div class="slide" data-section="Combinatorics">
+  <div class="slide-inner">
+    <div class="slide-h">What combinatorics write-ups need most</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>Precise <strong>definitions</strong> of the configuration</li>
+      <li>Named sets, graphs, color classes, or moves</li>
+      <li>A visible <strong>invariant, extremal object, or counted quantity</strong></li>
+      <li>Separated casework</li>
+      <li>A clean count or contradiction at the end</li>
+    </ul>
+    <div class="block">
+      <div class="block-title">Core Idea</div>
+      In combinatorics, <strong>definitions are part of the proof</strong>. If the model is unclear, the proof is unclear.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Combinatorics">
+  <div class="slide-inner">
+    <div class="slide-h">Combinatorics opening template</div>
+    <div class="block">
+      <div class="block-title">A Strong Start</div>
+      Let <em>X</em> be the number of ordered pairs (<em>A</em>, <em>B</em>) such that …<br>
+      We count <em>X</em> in two ways.<br><br>
+      <em>Alternatively:</em><br>
+      Choose a configuration maximizing the number of red edges. We claim this configuration has no isolated red vertex.
+    </div>
+    <ul class="bullet">
+      <li>The parameter is named.</li>
+      <li>The proof method is visible immediately.</li>
+      <li>The reader can already anticipate the shape of the argument.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="Combinatorics">
+  <div class="slide-inner">
+    <div class="slide-h">Double counting, invariants, and extremal arguments</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="block">
+        <div class="block-title">Double Counting</div>
+        State: what set is counted; how the first count works; how the second count works; what identity or inequality results.
+      </div>
+      <div class="block">
+        <div class="block-title">Invariants</div>
+        State the quantity and then prove it stays fixed or changes monotonically.
+      </div>
+      <div class="block">
+        <div class="block-title">Extremal Arguments</div>
+        Name the extremal object explicitly: a largest clique, a smallest counterexample, a maximum matching, a minimum bad set.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Combinatorics">
+  <div class="slide-inner">
+    <div class="slide-h">Casework in combinatorics</div>
+    <div class="cols">
+      <div class="alert-block">
+        <div class="block-title">Weak Format</div>
+        One paragraph containing all possibilities in discovery order.
+      </div>
+      <div class="block">
+        <div class="block-title">Strong Format</div>
+        <ol class="numbered">
+          <li><strong>Case 1:</strong> The chosen vertex lies in the set <em>S</em>.</li>
+          <li><strong>Case 2:</strong> The chosen vertex lies outside <em>S</em>.</li>
+        </ol>
+        Conclude with one sentence explaining why these cases are exhaustive.
+      </div>
+    </div>
+    <div class="alert-block" style="margin-top:12px;">
+      <div class="block-title">Key Rule</div>
+      At every moment the reader must know what is <strong>fixed</strong>, what <strong>varies</strong>, and what is being <strong>counted</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Combinatorics">
+  <div class="slide-inner">
+    <div class="slide-h">Combinatorics checklist</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-box"></div><span>Are all sets, vertices, edges, colors, moves, and bad objects defined?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Is the invariant or extremal choice stated explicitly?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Is the double count presented in two distinct pieces?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Is every case visibly separated?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Is the final contradiction or final count written explicitly?</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 8 — GEOMETRY
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Geometry">
+  <div class="section-number">Section 08</div>
+  <div class="section-title">Writing<br>Geometry Solutions</div>
+</div>
+
+<div class="slide" data-section="Geometry">
+  <div class="slide-inner">
+    <div class="slide-h">What geometry solutions need most</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>A usable <strong>diagram</strong></li>
+      <li>Exact definitions of points, lines, circles, and intersections</li>
+      <li>A clearly announced <strong>target relation</strong></li>
+      <li>A highlighted key lemma: usually similarity, cyclicity, homothety, or concurrency</li>
+      <li>A finish that returns exactly to the asked statement</li>
+    </ul>
+    <div class="block">
+      <div class="block-title">Geometry Principle</div>
+      In geometry, the reader should <strong>never wonder where a point lies</strong> or what a symbol refers to.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Geometry">
+  <div class="slide-inner">
+    <div class="slide-h">Geometry opening template</div>
+    <div class="block">
+      <div class="block-title">A Good Start</div>
+      Let <em>M</em> be the midpoint of <em>BC</em>, let <em>ω</em> be the circumcircle of <em>ABC</em>, and let <em>X</em> = <em>AM</em> ∩ <em>ω</em> with <em>X</em> ≠ <em>A</em>.<br><br>
+      We claim that <em>B, C, M, X</em> are harmonic, and hence it suffices to prove<br>
+      <div class="math-display">∠BXM = ∠MCA.</div>
+    </div>
+    <ul class="bullet">
+      <li>The construction is precise.</li>
+      <li>The target is visible.</li>
+      <li>The reader knows which step is going to matter.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="Geometry">
+  <div class="slide-inner">
+    <div class="slide-h">Avoiding the angle-chase blob</div>
+    <div class="cols">
+      <div class="alert-block">
+        <div class="block-title">Weak Style</div>
+        "Thus ∠A = ∠B = ∠C = ∠D, so everything follows."
+      </div>
+      <div class="block">
+        <div class="block-title">Strong Style</div>
+        <div class="math-display">∠ABX = ∠ACX</div>
+        because <em>A, B, C, X</em> are concyclic.<br><br>
+        Also, <div class="math-display">∠ACX = ∠ADX</div>
+        because <em>C, D, A, X</em> are concyclic.<br><br>
+        Hence <div class="math-display">∠ABX = ∠ADX,</div>
+        so <em>A, B, D, X</em> are concyclic.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Geometry">
+  <div class="slide-inner">
+    <div class="slide-h">Geometry checklist</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-box"></div><span>Is there a usable diagram?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Are all constructed points defined exactly once?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you state what you are trying to prove before chasing angles?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Is the decisive similarity or cyclicity claim isolated?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Does the final sentence match the problem statement exactly?</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 9 — NUMBER THEORY
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Number Theory">
+  <div class="section-number">Section 09</div>
+  <div class="section-title">Writing<br>Number Theory Solutions</div>
+</div>
+
+<div class="slide" data-section="Number Theory">
+  <div class="slide-inner">
+    <div class="slide-h">What number theory solutions need most</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>The right <strong>prime divisor, modulus, or extremal choice</strong></li>
+      <li>Explicit notation for valuations, orders, gcds, and divisibility</li>
+      <li>A visible obstruction: parity, congruence, descent, or valuation</li>
+      <li>Clean separation of the key contradiction from routine arithmetic</li>
+      <li>Explicit verification in "find all" problems</li>
+    </ul>
+    <div class="flow">
+      <div class="flow-step">Choose modulus / prime</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Force structural rigidity</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Contradiction or classification</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Number Theory">
+  <div class="slide-inner">
+    <div class="slide-h">Number theory opening template</div>
+    <div class="block">
+      <div class="block-title">A Strong Start</div>
+      Assume for contradiction that a solution exists, and choose one with minimal <em>n</em>.<br><br>
+      Let <em>p</em> be the smallest prime divisor of <em>n</em>. We claim that<br>
+      <div class="math-display">p = 3.</div>
+      Once this is shown, the remaining argument is routine.
+    </div>
+    <ul class="bullet">
+      <li>The contradiction setup is explicit.</li>
+      <li>The extremal choice is justified.</li>
+      <li>The key claim is visible before the arithmetic begins.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="Number Theory">
+  <div class="slide-inner">
+    <div class="slide-h">Congruences, valuations, and descent</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="block">
+        <div class="block-title">Congruences</div>
+        Say <em>why</em> a modulus is natural. Choose mod 4, 8, 9, <em>p</em>, <em>p</em>² or <em>n</em> for a structural reason, not by random trial.
+      </div>
+      <div class="block">
+        <div class="block-title">Valuations</div>
+        Introduce <em>v<sub>p</sub></em>(<em>n</em>) early and explain what exact valuation you are trying to prove.
+      </div>
+      <div class="block">
+        <div class="block-title">Descent</div>
+        "Choose the smallest counterexample" is not decoration; it is the <strong>engine of the contradiction</strong>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Number Theory">
+  <div class="slide-inner">
+    <div class="slide-h">How to write contradiction cleanly</div>
+    <div class="block" style="margin-bottom:14px;">
+      <div class="block-title">Standard Contradiction Template</div>
+      Assume for contradiction that there exists an integer <em>n</em> with property <em>P</em>.<br><br>
+      Choose such an <em>n</em> with minimal value.<br><br>
+      We show how to construct a smaller integer <em>m</em> &lt; <em>n</em> with the same property.<br><br>
+      This contradicts the minimality of <em>n</em>.
+    </div>
+    <div class="info-block">
+      <div class="block-title">Why This Is Good Writing</div>
+      The extremal choice explains why the next move matters. Without it, the proof can feel like random algebra.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Number Theory">
+  <div class="slide-inner">
+    <div class="slide-h">Number theory checklist</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-box"></div><span>Did you explain why that modulus or prime was chosen?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you define v<sub>p</sub>, gcd, or ord<sub>p</sub> before using them?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you isolate the key contradiction?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you verify all claimed solutions in a classification problem?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did you end with the exact final answer?</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 10 — EXAMPLES OF STRONG PHRASING
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Strong Phrasing">
+  <div class="section-number">Section 10</div>
+  <div class="section-title">Examples of<br>Strong Phrasing</div>
+</div>
+
+<div class="slide" data-section="Strong Phrasing">
+  <div class="slide-inner">
+    <div class="slide-h">Useful sentence stems — Algebra &amp; Number Theory</div>
+    <div class="cols">
+      <div class="block">
+        <div class="block-title">Algebra</div>
+        <ul class="bullet">
+          <li>"We homogenize the inequality by setting …"</li>
+          <li>"The key identity is …"</li>
+          <li>"Equality holds exactly when …"</li>
+          <li>"It remains to verify that the candidate family indeed works."</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title">Number Theory</div>
+        <ul class="bullet">
+          <li>"Let <em>p</em> be the smallest prime divisor of <em>n</em>."</li>
+          <li>"Reducing modulo 8 gives …"</li>
+          <li>"Applying LTE yields …"</li>
+          <li>"This contradicts the minimality of <em>n</em>."</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Strong Phrasing">
+  <div class="slide-inner">
+    <div class="slide-h">Useful sentence stems — Geometry &amp; Combinatorics</div>
+    <div class="cols">
+      <div class="block">
+        <div class="block-title">Geometry</div>
+        <ul class="bullet">
+          <li>"It suffices to prove …"</li>
+          <li>"We claim that these four points are concyclic."</li>
+          <li>"Now triangles <em>PQR</em> and <em>XYZ</em> are similar because …"</li>
+          <li>"Hence the required collinearity follows."</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title">Combinatorics</div>
+        <ul class="bullet">
+          <li>"Let <em>X</em> denote the number of …"</li>
+          <li>"We count <em>X</em> in two ways."</li>
+          <li>"Choose a configuration maximizing …"</li>
+          <li>"This quantity is invariant after each move."</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 11 — COMMON FAILURE MODES
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Common Failures">
+  <div class="section-number">Section 11</div>
+  <div class="section-title">Common<br>Failure Modes</div>
+</div>
+
+<div class="slide" data-section="Common Failures">
+  <div class="slide-inner">
+    <div class="slide-h">Mistakes that cost points</div>
+    <ol class="numbered" style="margin-bottom:14px;">
+      <li>Writing false claims and planning to repair them later</li>
+      <li>Skipping the main difficulty with words like "clearly"</li>
+      <li>Missing one direction in a "find all" or extremal problem</li>
+      <li>Using undefined notation</li>
+      <li>Citing a theorem without saying how it applies</li>
+      <li>Doing casework without showing the cases are exhaustive</li>
+      <li>Ending with a lemma rather than the original target</li>
+    </ol>
+    <div class="alert-block">
+      <div class="block-title">Blunt Truth</div>
+      The majority of unexpectedly low-scoring solutions are genuinely <strong>incomplete or incorrect</strong>, not merely badly styled.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Common Failures">
+  <div class="slide-inner">
+    <div class="slide-h">Suspicious phrases</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>"By symmetry, assume …"</li>
+      <li>"In the worst case …"</li>
+      <li>"It is obvious that …"</li>
+      <li>"One can easily show …"</li>
+      <li>"The rest is routine."</li>
+    </ul>
+    <div class="block" style="margin-bottom:10px;">
+      <div class="block-title">When Are These Allowed?</div>
+      Only when the omitted step is truly routine and not where the problem lives.
+    </div>
+    <div class="info-block">
+      <div class="block-title">Safer Alternative</div>
+      Replace vague compression with <strong>one crisp sentence that explains the actual reason</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Common Failures">
+  <div class="slide-inner">
+    <div class="slide-h">Fake progress</div>
+    <ul class="bullet" style="margin-bottom:14px;">
+      <li>proving only special cases</li>
+      <li>assuming what must be shown</li>
+      <li>asserting the key lemma without proof</li>
+      <li>deriving a candidate answer without checking it</li>
+      <li>proving a bound without showing attainability</li>
+      <li>giving a construction without proving optimality</li>
+    </ul>
+    <div class="alert-block">
+      <div class="block-title">A Good Self-Check</div>
+      Ask: have I solved <strong>the exact problem</strong>, or only something nearby?
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 12 — REVISION
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Revision & Checking">
+  <div class="section-number">Section 12</div>
+  <div class="section-title">Revision<br>and Checking</div>
+</div>
+
+<div class="slide" data-section="Revision & Checking">
+  <div class="slide-inner">
+    <div class="slide-h">How to revise a draft</div>
+    <ol class="numbered" style="margin-bottom:14px;">
+      <li>Rewrite the solution neatly.</li>
+      <li>Look for the main claim and move it into a visible place.</li>
+      <li>Merge repetitive calculations.</li>
+      <li>Split giant paragraphs into logical units.</li>
+      <li>Check every definition and every equality case.</li>
+      <li>Make the ending explicitly answer the question.</li>
+    </ol>
+    <div class="block">
+      <div class="block-title">Revision Principle</div>
+      Many "too long" solutions do not need deletion; they need <strong>reorganization</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Revision & Checking">
+  <div class="slide-inner">
+    <div class="slide-h">A practical contest-time checklist</div>
+    <div class="checklist" style="margin-bottom:16px;">
+      <div class="check-item"><div class="check-box"></div><span>Did I state the answer clearly?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Did I define every symbol?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Is the hardest step visible?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Are all cases covered?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>For "find all" or extremal problems, did I do both directions?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>In geometry or configuration problems, is the diagram usable?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Does the final sentence say exactly what the problem asked?</span></div>
+    </div>
+    <div class="alert-block pause-reveal" data-pause="true">
+      <div class="block-title">Final Contest Habit</div>
+      Write clearly and carefully enough that you can <strong>catch your own mistakes while writing</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 13 — ONE-SLIDE SUMMARIES
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="One-Slide Summaries">
+  <div class="section-number">Section 13</div>
+  <div class="section-title">One-Slide Summary<br>for Each Field</div>
+</div>
+
+<div class="slide" data-section="One-Slide Summaries">
+  <div class="slide-inner">
+    <div class="slide-h">Algebra in one slide</div>
+    <div class="block" style="margin-bottom:14px;">
+      <div class="block-title">What the Grader Wants to See</div>
+      <ol class="numbered">
+        <li>the claimed answer or bound</li>
+        <li>the substitution or normalization</li>
+        <li>the key identity</li>
+        <li>the tool applied to that identity</li>
+        <li>the equality case</li>
+      </ol>
+    </div>
+    <div class="alert-block">
+      <div class="block-title">Best Algebra Advice</div>
+      Do not make the reader guess <strong>which line of algebra actually mattered</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="One-Slide Summaries">
+  <div class="slide-inner">
+    <div class="slide-h">Combinatorics in one slide</div>
+    <div class="block" style="margin-bottom:14px;">
+      <div class="block-title">What the Grader Wants to See</div>
+      <ol class="numbered">
+        <li>the exact configuration</li>
+        <li>the named quantity, invariant, or extremal object</li>
+        <li>the clean case split or double count</li>
+        <li>the final contradiction or bound</li>
+      </ol>
+    </div>
+    <div class="alert-block">
+      <div class="block-title">Best Combinatorics Advice</div>
+      Always make clear what is <strong>fixed</strong>, what <strong>varies</strong>, and what is being <strong>counted</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="One-Slide Summaries">
+  <div class="slide-inner">
+    <div class="slide-h">Geometry in one slide</div>
+    <div class="block" style="margin-bottom:14px;">
+      <div class="block-title">What the Grader Wants to See</div>
+      <ol class="numbered">
+        <li>the diagram and exact definitions</li>
+        <li>the target relation</li>
+        <li>the decisive configuration</li>
+        <li>the clean deduction from that configuration</li>
+      </ol>
+    </div>
+    <div class="alert-block">
+      <div class="block-title">Best Geometry Advice</div>
+      Do not let the proof become <strong>a paragraph of anonymous angles</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="One-Slide Summaries">
+  <div class="slide-inner">
+    <div class="slide-h">Number Theory in one slide</div>
+    <div class="block" style="margin-bottom:14px;">
+      <div class="block-title">What the Grader Wants to See</div>
+      <ol class="numbered">
+        <li>the chosen modulus, prime divisor, or counterexample</li>
+        <li>why that choice is natural</li>
+        <li>the key obstruction</li>
+        <li>the contradiction, descent, or classification</li>
+      </ol>
+    </div>
+    <div class="alert-block">
+      <div class="block-title">Best Number Theory Advice</div>
+      Do not merely compute residues; explain what <strong>obstruction</strong> those residues are meant to create.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 14 — CLOSING
+══════════════════════════════════════════════════ -->
+<div class="slide slide-section-header" data-section="Closing Summary">
+  <div class="section-number">Section 14</div>
+  <div class="section-title">Closing<br>Summary</div>
+</div>
+
+<div class="slide" data-section="Closing Summary">
+  <div class="slide-inner">
+    <div class="slide-h">Final philosophy</div>
+    <div class="block" style="margin-bottom:16px;">
+      <div class="block-title">A Strong Olympiad Solution Is Not Just Correct</div>
+      It is arranged so that the grader sees, in order:
+      <ol class="numbered" style="margin-top:8px;">
+        <li>the answer</li>
+        <li>the main idea</li>
+        <li>the key claim</li>
+        <li>the clean deduction to the final result</li>
+      </ol>
+    </div>
+    <div class="info-block">
+      <div class="block-title">One-Line Takeaway</div>
+      State the destination early, highlight the bridge that gets there, cross it cleanly, and stop exactly at the required conclusion.
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-section="Closing Summary">
+  <div class="slide-inner" style="align-items:center;text-align:center;">
+    <div class="big-flow">
+      <div class="big-step">Answer</div>
+      <div class="big-arrow">→</div>
+      <div class="big-step">Definitions</div>
+      <div class="big-arrow">→</div>
+      <div class="big-step">Key Claim</div>
+      <div class="big-arrow">→</div>
+      <div class="big-step">Proof</div>
+      <div class="big-arrow">→</div>
+      <div class="big-step">Conclusion</div>
+    </div>
+    <div class="title-divider"></div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2.2vw,28px);color:var(--gold-light);line-height:1.4;max-width:680px;margin:0 auto;">
+      Clear mathematics earns trust.<br>Structured mathematics earns full credit.
+    </div>
+  </div>
+</div>
+
+</div><!-- /slides-wrap -->
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+let current = 0;
+let pauseState = {}; // track pause state per slide
+
+document.getElementById('tot').textContent = total;
+
+function getPauseElements(slide) {
+  return Array.from(slide.querySelectorAll('.pause-reveal[data-pause="true"]'));
+}
+
+function initSlide(idx) {
+  const slide = slides[idx];
+  const pauses = getPauseElements(slide);
+  pauses.forEach(el => el.classList.remove('revealed'));
+  pauseState[idx] = 0;
+}
+
+function render() {
+  // Update progress bar
+  document.getElementById('progress-bar').style.width = ((current/(total-1))*100) + '%';
+  document.getElementById('cur').textContent = current + 1;
+
+  // Update section label
+  const sec = slides[current].dataset.section || '';
+  document.getElementById('section-label').textContent = sec;
+}
+
+function goTo(idx) {
+  if (idx < 0 || idx >= total) return;
+  slides[current].classList.remove('active');
+  slides[current].classList.add('exit');
+  setTimeout(() => { slides[current].classList.remove('exit'); }, 500);
+  current = idx;
+  initSlide(current);
+  slides[current].classList.add('active');
+  render();
+}
+
+function advance() {
+  const slide = slides[current];
+  const pauses = getPauseElements(slide);
+  const revealed = pauseState[current] || 0;
+  if (revealed < pauses.length) {
+    pauses[revealed].classList.add('revealed');
+    pauseState[current] = revealed + 1;
+  } else {
+    goTo(current + 1);
+  }
+}
+
+function retreat() {
+  const revealed = pauseState[current] || 0;
+  if (revealed > 0) {
+    const pauses = getPauseElements(slides[current]);
+    pauses[revealed - 1].classList.remove('revealed');
+    pauseState[current] = revealed - 1;
+  } else {
+    goTo(current - 1);
+  }
+}
+
+document.getElementById('btn-next').addEventListener('click', advance);
+document.getElementById('btn-prev').addEventListener('click', retreat);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') {
+    e.preventDefault(); advance();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault(); retreat();
+  }
+});
+
+// Touch/swipe support
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = touchX - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 50) { dx > 0 ? advance() : retreat(); }
+});
+
+// Init
+initSlide(0);
+render();
+</script>
+</body>
+</html>
