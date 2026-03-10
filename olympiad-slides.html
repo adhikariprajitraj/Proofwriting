@@ -346,6 +346,113 @@ pre.verbatim .comm { color: var(--text-muted); }
   border: 1px solid rgba(201,162,39,0.05);
   pointer-events: none;
 }
+
+/* ── MOBILE ADAPTATIONS ── */
+@media (max-width: 900px) {
+  :root { --ui-scale: 1; }
+
+  #zoom-root {
+    width: 100vw;
+    height: 100vh;
+    transform: none;
+  }
+
+  #section-label {
+    top: calc(10px + env(safe-area-inset-top));
+    max-width: calc(100vw - 24px);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    padding: 4px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #counter {
+    right: 14px;
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    font-size: 10px;
+  }
+
+  .nav-btn {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  #btn-prev { left: calc(50% - 54px); }
+  #btn-next { left: calc(50% + 10px); }
+
+  .slide {
+    justify-content: flex-start;
+    padding: calc(56px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+    transform: translateY(0);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .slide-inner {
+    max-width: 100%;
+    gap: 12px;
+  }
+
+  .slide-h {
+    font-size: clamp(22px, 7vw, 30px);
+    line-height: 1.18;
+  }
+
+  .block, .alert-block, .info-block {
+    padding: 14px 14px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  ul.bullet, ol.numbered {
+    padding-left: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  pre.verbatim {
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .cols,
+  .slide-inner > div[style*="grid-template-columns:1fr 1fr"],
+  .slide-inner > div[style*="grid-template-columns:1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .flow,
+  .big-flow {
+    justify-content: flex-start;
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .flow-step {
+    white-space: normal;
+    text-align: center;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .big-step {
+    font-size: 17px;
+    padding: 10px 14px;
+  }
+
+  .big-arrow {
+    font-size: 18px;
+  }
+
+  .deco-circle {
+    opacity: 0.5;
+  }
+}
 </style>
 </head>
 <body>
